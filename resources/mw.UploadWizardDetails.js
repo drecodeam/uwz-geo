@@ -199,10 +199,9 @@ mw.UploadWizardDetails = function( upload, api, containerDiv ) {
 
 	_this.mapInitiator= function(){
 		console.log('map initiator called');
-		var mapDiv = $j('<div id="map" style="height:400px"></div>');
-		$j( _this.$form ).append(mapDiv);
-		_this.upload.wizard.map = new L.Map('map');
-		_this.map=_this.upload.wizard.map;
+		var mapDiv = $j('<div id="map' + _this.upload.index + '" style="height:400px"></div>');
+		$j( moreDetailsDiv ).append(mapDiv);
+		_this.map = new L.Map('map' + _this.upload.index);
 		var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/1036eaf35f0f448d8bde1b9927462962/997/256/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
 				maxZoom: 18
@@ -460,12 +459,7 @@ mw.UploadWizardDetails.prototype = {
 		if ( !this.isAttached ) {
 			$j( this.containerDiv ).append( this.div );
 			_this=this;
-			if(!_this.upload.wizard.map){
-				_this.mapInitiator();
-			}
-			else{
-				_this.map=_this.upload.wizard.map;
-			}
+			_this.mapInitiator();
 			_this.prefillMap();
 			this.isAttached = true;
 		}
@@ -905,31 +899,32 @@ mw.UploadWizardDetails.prototype = {
 	prefillMap : function(){
 
 		_this = this;
-		var m= _this.upload.imageinfo.metadata;
-		if ( m['gpslatitude'] !== undefined && m['gpslongitude'] !== undefined   ) {
-
+		var m = _this.upload.imageinfo.metadata;
+		console.log(m);
+		if ( m['gpslatitude'] !== undefined && m['gpslongitude'] !== undefined ) {
 			var markerLocation = new L.LatLng(m['gpslatitude'], m['gpslongitude']);
 			var marker = new L.Marker(markerLocation);
 			_this.map.addLayer(marker);
-
+			console.log('if called');
+			_this.map.setView(markerLocation);
 		}
 
 		else{
-				_this.map.on('click', onMapClick);
-				function onMapClick(e){
-					if(_this.marker){
-						_this.map.removeLayer(_this.marker);
-					}
-					var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
-					console.log(latlngStr);
-					$j( _this.latInput ).val( e.latlng.lat.toFixed(3));
-					$j( _this.lonInput ).val( e.latlng.lng.toFixed(3));
-					var markerLocation = new L.LatLng(e.latlng.lat.toFixed(3), e.latlng.lng.toFixed(3));
-					_this.marker = new L.Marker(markerLocation);
-					_this.map.addLayer(_this.marker);
-				};
-
-			}
+			_this.map.on('click', onMapClick);
+			function onMapClick(e){
+				if(_this.marker){
+					_this.map.removeLayer(_this.marker);
+				}
+				var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
+				console.log(latlngStr);
+				$j( _this.latInput ).val( e.latlng.lat.toFixed(3));
+				$j( _this.lonInput ).val( e.latlng.lng.toFixed(3));
+				var markerLocation = new L.LatLng(e.latlng.lat.toFixed(3), e.latlng.lng.toFixed(3));
+				_this.marker = new L.Marker(markerLocation);
+				_this.map.addLayer(_this.marker);
+			};
+		console.log('esle called');
+		}
 
 
 
