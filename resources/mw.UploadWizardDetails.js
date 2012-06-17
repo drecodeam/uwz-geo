@@ -16,7 +16,6 @@
 var fileNsId = mw.config.get( 'wgNamespaceIds' ).file;
 
 mw.UploadWizardDetails = function( upload, api, containerDiv ) {
-	console.log('uploadwizarddetails constructor called');
 	var _this = this;
 	_this.upload = upload;
 	_this.containerDiv = containerDiv;
@@ -185,7 +184,6 @@ mw.UploadWizardDetails = function( upload, api, containerDiv ) {
 		locationDiv,
 		otherInformationDiv
 	);
-	console.log(moreDetailsDiv);
 	/* Build the form for the file upload */
 	_this.$form = $j( '<form id="mwe-upwiz-detailsform' + _this.upload.index + '"></form>' ).addClass( 'detailsForm' );
 	_this.$form.append(
@@ -198,16 +196,18 @@ mw.UploadWizardDetails = function( upload, api, containerDiv ) {
 
 
 	_this.mapInitiator= function(){
-		console.log('map initiator called');
-		var mapDiv = $j('<div id="map' + _this.upload.index + '" style="height:400px"></div>');
-		$j( moreDetailsDiv ).append(mapDiv);
-		_this.map = new L.Map('map' + _this.upload.index);
-		var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/1036eaf35f0f448d8bde1b9927462962/997/256/{z}/{x}/{y}.png', {
-				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-				maxZoom: 18
-			});
-		var london = new L.LatLng(51.505, -0.09); // geographical point (longitude and latitude)
-		_this.map.setView(london, 13).addLayer(cloudmade);
+		var mapDiv = $j( '<div id="map' + _this.upload.index + '" style="height:400px"></div>' );
+		$j( moreDetailsDiv ).append( mapDiv );
+		_this.map = new L.Map( 'map' + _this.upload.index );
+		var cloudmade = new L.TileLayer(
+				'http://{s}.tile.cloudmade.com/1036eaf35f0f448d8bde1b9927462962/997/256/{z}/{x}/{y}.png',{
+					attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+					maxZoom: 18
+				}
+			);
+		//xxx need to decide this
+		var london = new L.LatLng( 51.505, -0.09 ); // geographical point (longitude and latitude)
+		_this.map.setView( london, 13 ).addLayer( cloudmade );
 	}
 
 	if ( mw.UploadWizard.config.idField ) {
@@ -881,13 +881,12 @@ mw.UploadWizardDetails.prototype = {
 	 */
 	prefillLocation: function() {
 		var _this = this;
-		console.log('prefillLocation called');
 		if ( _this.upload.imageinfo.metadata ) {
 			var m = _this.upload.imageinfo.metadata;
-			//var map_container=$j('<div id="map' +_this.upload.index +'"></div>');
-			//var map_container=$j('#map' + _this.upload.index);
-			if ( m['gpslatitude'] !== undefined && m['gpslongitude'] !== undefined   ) {
+			if ( m['gpslatitude'] !== undefined) {
 				$j( _this.latInput ).val( m['gpslatitude'] );
+			}
+			if( m['gpslongitude'] !== undefined ) {
 				$j( _this.lonInput ).val( m['gpslongitude'] );
 			}
 			if ( m['gpsaltitude'] !== undefined ) {
@@ -896,34 +895,33 @@ mw.UploadWizardDetails.prototype = {
 		}
 	},
 
-	prefillMap : function(){
+	/**
+ 	 * Prefill location inputs (and/or scroll to position on map) from image info and metadata
+	 * and add click handler for taking the location for media not having location information.
+	 *
+	 */
 
+	prefillMap : function(){
 		_this = this;
 		var m = _this.upload.imageinfo.metadata;
-		console.log(m);
 		if ( m['gpslatitude'] !== undefined && m['gpslongitude'] !== undefined ) {
-			var markerLocation = new L.LatLng(m['gpslatitude'], m['gpslongitude']);
-			var marker = new L.Marker(markerLocation);
-			_this.map.addLayer(marker);
-			console.log('if called');
-			_this.map.setView(markerLocation);
+			var markerLocation = new L.LatLng( m['gpslatitude'], m['gpslongitude'] );
+			var marker = new L.Marker( markerLocation );
+			_this.map.addLayer( marker );
+			_this.map.setView( markerLocation );
 		}
-
 		else{
 			_this.map.on('click', onMapClick);
-			function onMapClick(e){
-				if(_this.marker){
-					_this.map.removeLayer(_this.marker);
+			function onMapClick( e ){
+				if( _this.marker ){
+					_this.map.removeLayer( _this.marker );
 				}
-				var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
-				console.log(latlngStr);
-				$j( _this.latInput ).val( e.latlng.lat.toFixed(3));
-				$j( _this.lonInput ).val( e.latlng.lng.toFixed(3));
-				var markerLocation = new L.LatLng(e.latlng.lat.toFixed(3), e.latlng.lng.toFixed(3));
-				_this.marker = new L.Marker(markerLocation);
-				_this.map.addLayer(_this.marker);
+				$j( _this.latInput ).val( e.latlng.lat.toFixed(3) );
+				$j( _this.lonInput ).val( e.latlng.lng.toFixed(3) );
+				var markerLocation = new L.LatLng( e.latlng.lat.toFixed(3), e.latlng.lng.toFixed(3) );
+				_this.marker = new L.Marker( markerLocation );
+				_this.map.addLayer( _this.marker );
 			};
-		console.log('esle called');
 		}
 
 
