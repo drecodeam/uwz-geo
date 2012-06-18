@@ -909,6 +909,10 @@ mw.UploadWizardDetails.prototype = {
 			var marker = new L.Marker( markerLocation );
 			_this.map.addLayer( marker );
 			_this.map.setView( markerLocation );
+			setTimeout(function(){
+			_this.map.invalidateSize();
+			}, 1);
+
 		}
 		else{
 			_this.map.on('click', onMapClick);
@@ -921,6 +925,10 @@ mw.UploadWizardDetails.prototype = {
 				var markerLocation = new L.LatLng( e.latlng.lat.toFixed(3), e.latlng.lng.toFixed(3) );
 				_this.marker = new L.Marker( markerLocation );
 				_this.map.addLayer( _this.marker );
+				setTimeout(function(){
+					_this.map.invalidateSize();
+				}, 1);
+
 			};
 		}
 
